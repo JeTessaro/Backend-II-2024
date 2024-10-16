@@ -1,0 +1,94 @@
+<h1>Real time products</h1>
+
+<h2>Formulario de productos</h2>
+
+<section class="container mt-5 w-100 d-flex flex-column align-items-center mb-56">
+    <form id="product-form" class="forma-control w-50">
+        <input type="text" name="title" class="forma-control mb-2" placeholder="Ingrese el nombre del producto">
+        <input type="text" name="code" class="forma-control mb-2" placeholder="Ingrese el código del producto">
+        <input type="text" name="thumbnail" class="forma-control mb-2" placeholder="Ingrese la imagen del producto">
+        <input type="text" name="price" class="forma-control mb-2" placeholder="Ingrese el precio del producto">
+        <input type="text" name="stock" class="forma-control mb-2" placeholder="Ingrese el stock del producto">
+        <input type="text" name="category" class="forma-control mb-2" placeholder="Ingrese la categoría del producto">
+        <button type="submit" class="btn btn-outline-dark">Enviar</button>
+    </form>
+</section>
+
+<div id="product-list" class="container d-flex flex-wrap justify-content-center gap-4"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    function requestProductList() {
+        socket.emit('requestProductList');
+    }
+
+    socket.on('productList', data => {
+        const productListDiv = document.querySelector('#product-list');
+
+        let html = '';
+        data.forEach(product => {
+            html += `   
+                <div class='col-md-4 mb-4'>
+                    <div class='card'>
+                        <img src='${product.thumbnail}' class='card-img-top' alt='${product.title}'>
+                        <div class='card-body'>
+                            <h5 class='card-title'>Nombre: ${product.title}</h5>
+                            <p class='card-text'>Código: ${product.code}</p>
+                            <p class='card-text'>Precio: ${product.price}</p>
+                            <p class='card-text'>Stock: ${product.stock}</p>
+                            <p class='card-text'>Categoría: ${product.category}</p>
+                        </div>
+                        <div class='card-footer'> 
+                            <button class='btn btn-outline-dark w-100 delete-btn' data-id='${product._id}'>Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        productListDiv.innerHTML = html;
+
+        // Añadir event listeners a los botones de eliminar
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const id = button.getAttribute('data-id');
+                console.log('Data', data);
+                eliminarProducto(id);
+            });
+        });
+    });
+
+    let form = document.querySelector('#product-form');
+
+    form.addEventListener('submit', evt => {
+        evt.preventDefault();
+        const title = form.elements.title.value;
+        const code = form.elements.code.value;
+        const thumbnail = form.elements.thumbnail.value;
+        const price = form.elements.price.value;
+        const stock = form.elements.stock.value;
+        const category = form.elements.category.value;
+
+        socket.emit('addProduct', {
+            title,
+            code,
+            price: Number(price),
+            stock: parseInt(stock),
+            category,
+            thumbnail
+        });
+        form.reset();
+        requestProductList();
+    });
+
+    function eliminarProducto(_id) {
+        console.log(_id)
+        socket.emit('deleteProduct', _id);
+        console.log(_id)
+        requestProductList();
+    }
+
+    requestProductList();
+</script>

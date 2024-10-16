@@ -1,0 +1,117 @@
+<div class="container mt-5">
+    <h1 class="text-center">Bienvenidos a la PÁGINA del Carrito</h1>
+
+    <div class="mt-4">
+        <h2>Paginación</h2>
+        <div class="list-group">
+            {{#each products}}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>Nombre:</strong> {{this.title}} -
+                    <strong>Código:</strong> {{this.code}} -
+                    <strong>Precio:</strong> ${{this.price}}
+                </div>
+                <div class="d-flex align-items-center">
+                    <input type="number" min="1" value="1" id="quantity-{{this.code}}" class="form-control me-2"
+                        style="width: 70px;">
+                    <button class="btn btn-success" onclick="addToCart('{{this.code}}', {{this.price}})">Enviar al
+                        Carrito</button>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+
+        <div class="d-flex justify-content-center mt-4">
+            {{#if hasPrevPage}}
+            <a href="/carts?pageNum={{prevPage}}" class="btn btn-primary me-2">Anterior</a>
+            {{/if}}
+            <span class="align-self-center">Página {{page}}</span>
+            {{#if hasNextPage}}
+            <a href="/carts?pageNum={{nextPage}}" class="btn btn-primary ms-2">Siguiente</a>
+            {{/if}}
+        </div>
+    </div>
+</div>
+
+<script>
+    let cartItems = [];
+    function addToCart(code, price) {
+        const quantity = parseInt(document.getElementById(`quantity-${code}`).value, 10);
+
+
+        if (isNaN(quantity) || quantity <= 0) {
+            alert('Por favor, ingresa una cantidad válida.');
+            return;
+        }
+
+
+
+        const existingProductIndex = cartItems.findIndex(item => item.code === code);
+
+        // Si el producto está en el carrito, sumar la cantidad
+        // y actualizar el carrito en la base de datos
+        if (existingProductIndex !== -1) {
+
+            cartItems[existingProductIndex].cant += quantity;
+
+
+            fetch(`http://localhost:8080/api/carts/put/${code}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ cant: quantity }),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error en la respuesta de la red: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Cantidad actualizada en el carrito:', data);
+                    alert('Cantidad actualizada en el carrito.');
+                })
+                .catch((error) => {
+                    console.error('Error al actualizar la cantidad:', error);
+                    alert('Error al actualizar la cantidad en el carrito: ' + error.message);
+                });
+        } else {
+            // Si el producto no está en el carrito, agregarlo
+            const product = {
+                code: code,
+                price: price,
+                cant: quantity
+            };
+            cartItems.push(product);
+
+
+            fetch('http://localhost:8080/api/carts/post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(cartItems),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error en la respuesta de la red: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Productos agregados al carrito:', data);
+                    alert('Productos agregados al carrito.');
+                    cartItems = []; 
+                })
+                .catch((error) => {
+                    console.error('Error al agregar los productos:', error);
+                    alert('Error al agregar los productos al carrito: ' + error.message);
+                });
+        }
+    }
+
+
+
+
+</script>

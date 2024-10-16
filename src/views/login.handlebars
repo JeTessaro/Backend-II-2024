@@ -1,0 +1,20 @@
+<main class="container mt-5">
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <h1 class="mb-4">Login</h1>
+        <form action="/api/sessions/login" method="POST" class="form-group w-50">
+            <div class="mb-3">
+                <input type="text" name="email" class="form-control" placeholder="Ingrese el email" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" name="password" class="form-control mb-3" placeholder="Ingrese el pass" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Enviar</button>
+            <br>
+            <a href="/register" class="mt-3">¿No tienes una cuenta? Regístrate aquí</a>
+            <br>
+            <a href="/newpass" class="mt-3">¿Olvidaste tu contraseña?</a>
+            <a href="/api/sessions/github" class="btn btn-primary w-75">Ingresar con GitHub</a>
+            <br>
+        </form>
+    </div>
+</main>

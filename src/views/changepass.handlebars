@@ -1,0 +1,14 @@
+<main class="container mt-5">
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <h1 class="mb-4">Recuperar contraseña</h1>
+        <form action="/api/sessions/changepass" method="POST" class="form-group w-50">
+            <div class="mb-3">
+                <input type="text" name="email" class="form-control" placeholder="Ingrese el email" required>
+            </div>
+            <div class="mb-3">
+                <input type="text" name="newPassword" class="form-control mb-3" placeholder="Ingrese la nueva Contraseña" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Enviar</button>
+        </form>
+    </div>
+</main>

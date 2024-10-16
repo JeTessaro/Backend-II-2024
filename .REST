@@ -1,0 +1,125 @@
+#### Productos
+
+GET http://192.168.1.38:8080/api/products
+###
+GET http://localhost:8080/api/products/66d7a9e9deebbaa8902daa6a
+###
+POST  http://localhost:8080/api/products
+Content-Type: application/json
+
+[
+    {
+        "title": "Producto 1",
+        "code": "001",
+        "thumbnail": "../../public/uploads/1725409053498-img-07.JPG",
+        "price": 1820000,
+        "stock": 5,
+        "category": "Línea Clásica"
+    },
+    {
+        "title": "Producto 2",
+        "code": "002",
+        "thumbnail": "../../public/uploads/1725409053498-img-08.JPG",
+        "price": 1500000,
+        "stock": 3,
+        "category": "Línea Clásica"
+    },
+    {
+        "title": "Producto 3",
+        "code": "003",
+        "thumbnail": "../../public/uploads/1725409053498-img-07.JPG",
+        "price": 2000000,
+        "stock": 8,
+        "category": "Línea Clásica"
+    },
+    {
+        "title": "Producto 4",
+        "code": "004",
+        "thumbnail": "../../public/uploads/1725409053498-img-08.JPG",
+        "price": 1820000,
+        "stock": 2,
+        "category": "Línea Moderna"
+    },
+    {
+        "title": "Producto 5",
+        "code": "005",
+        "thumbnail": "../../public/uploads/1725409053498-img-07.JPG",
+        "price": 1320000,
+        "stock": 7,
+        "category": "Línea Moderna"
+    },
+    {
+        "title": "Producto 6",
+        "code": "006",
+        "thumbnail": "../../public/uploads/1725409053498-img-08.JPG",
+        "price": 1750000,
+        "stock": 4,
+        "category": "Línea Moderna"
+    }
+]
+
+
+
+###
+PUT http://localhost:8080/products/123456
+###
+DELETE  http://localhost:8080/api/products/123456
+
+#### Carts
+
+GET http://localhost:8080/api/carts/
+###
+GET http://localhost:8080/api/carts/66efb238917d04f3347866c2
+###
+POST  http://localhost:8080/api/carts/post
+content-Type: application/json
+
+[
+    {
+    "code": "002",
+    "price": 1500,
+    "cant": 8
+    }    
+]
+
+
+###
+PUT http://localhost:8080/api/carts/66efb20e917d04f3347866be
+Content-Type: application/json
+Authorization: Bearer token
+
+{
+  "code": "0500",
+  "price": 252600,
+  "cant": 7
+}
+
+
+
+
+###
+DELETE  http://localhost:8080/api/carts/66ef6ef4e09dc94d3e2517a2
+
+###
+
+POST http://localhost:8080/api/sessions/register
+Content-Type: application/json
+
+{
+    "first_name": "Tessaro E",
+    "email": "jose@gmail.com",
+    "role": "admin",
+    "password": "123456"
+}
+
+###
+
+POST http://localhost:8080/api/sessions/login
+Content-Type: application/json
+
+{
+    "email": "jt@gmail.com",
+    "password": "123456"
+}
+
+
