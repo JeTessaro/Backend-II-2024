@@ -22,7 +22,15 @@ const cartsSchema = new Schema({
     create: {
         type: Date,
         default: Date.now()
-    }
+    },
+    userEmail: { 
+        type: String,  
+        required: true 
+    },
+    products: [{
+        code: String,
+        cant: Number
+    }]
 })
 
 cartsSchema.plugin(mongoosePaginate)

@@ -1,23 +1,14 @@
-const { cartsModel } = require("../../models/carts.model");
+const mongoose = require('mongoose');
+const { cartsModel } = require("./models/carts.model");
 
 
 class CartsManagerMongo {
   constructor() {
     this.model = cartsModel;
   }
-  // Mostramos todo el contenido de la BD
-  getCarts = async () => {
-    try {
-      const carts = await this.model.find({});
-      return carts;
-    } catch (error) {
-      console.log("Error en getCarts:", error);
-      return [];
-    }
-  };
 
   // Mostramos todo el contenido de la BD con paginación
-  getCart = async ({ limit = 2, page = 1, opts = {} } = {}) => {
+  get = async ({ limit = 10, page = 1, opts = {} } = {}) => {
     try {
       const cart = await this.model.paginate(opts, { limit, page, lean: true });
       return cart;
@@ -28,7 +19,7 @@ class CartsManagerMongo {
   };
 
   // Buscar el producto por su ID
-  getCartsId = async (productId) => {
+  getById = async (productId) => {
     try {
       const product = await this.model.findById(productId);
       return product || null;
@@ -40,7 +31,7 @@ class CartsManagerMongo {
 
   // Añadir un nuevo producto al carrito
 
-  createCarts = async (newCarts) => {
+  create = async (newCarts) => {
     // Validamos que newCarts sea un array y que no esté vacío
     if (!Array.isArray(newCarts) || newCarts.length === 0) {
       console.log("Producto incompleto o formato incorrecto");
@@ -65,37 +56,23 @@ class CartsManagerMongo {
     }
   };
 
-  updateCarts = async (cid, newProduct) => {
+  update = async (cartId, updateData) => {
     try {
-      // Buscamos el carrito por ID
-      const cart = await cartsModel.findById(cid);
-
-      if (!cart) {
-        return null;
+      // Asegúrate de que cartId sea un ObjectId válido
+      if (!mongoose.Types.ObjectId.isValid(cartId)) {
+        throw new Error("ID de carrito inválido");
       }
 
-      // Verificamos si el carrito ya tiene el producto
-      if (cart.code === newProduct.code) {
-
-        cart.price = newProduct.price;
-        cart.cant = newProduct.cant;
-      } else {
-        return null;
-      }
-
-      await cart.save();
-      return cart;
-
+      const result = await this.model.findByIdAndUpdate(cartId, updateData, { new: true });
+      return result;
     } catch (error) {
-      console.log(error);
-      return null;
+      console.error("Error al actualizar el carrito:", error);
+      throw error; // Propaga el error para manejarlo en el controlador
     }
   };
-
-
   //
 
-  deleteCarts = async (delCartsId) => {
+  delete = async (delCartsId) => {
     try {
       const result = await this.model.findByIdAndDelete(delCartsId);
       if (result) {
@@ -106,6 +83,18 @@ class CartsManagerMongo {
     } catch (error) {
       console.log("Error al eliminar el producto:", error);
       return { message: "Error al eliminar el producto" };
+    }
+  };
+
+  getCartsByEmail = async (userEmail) => {
+    try {
+      const carts = await this.model.find({ userEmail });
+      console.log(carts)
+      return carts;
+    }
+    catch (error) {
+      console.error("Error al obtener carritos por email:", error);
+      throw new Error("Error al obtener carritos por email");
     }
   };
 }

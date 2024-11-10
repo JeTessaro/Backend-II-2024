@@ -1,69 +1,25 @@
-const { connect } = require('mongoose');
-const productModel = require('../models/products.model.js');
-const cartsModel = require('../models/carts.model.js')
-const userModel = require('../models/users.model.js')
+const { connect } = require('mongoose')
+const dotenv = require('dotenv')
+const { program } = require('../utils/commander')
+
+const { mode } = program.opts()
+
+dotenv.config({
+    path: mode === 'development' ? './.env.development' : './.env.production'
+})
+
+console.log('variable nombre: ', process.env.NOMBRE)
+
+exports.configObject = {
+    port: process.env.PORT || 8080,
+    private_key: process.env.PRIVATE_KEY,
+    persistence: process.env.PERSISTENCE,
+    gmail_user: process.env.GMAIL_USER,
+    gmail_pass: process.env.GMAIL_PASS
+}
 
 module.exports.connectDB = async () => {
-    try {
-        await connect('mongodb+srv://hemy1605:101Dalmatas@cluster0.pxtmf5z.mongodb.net/c70130?retryWrites=true&w=majority&appName=Cluster0');
-        console.log('Base de datos conectada');
+    console.log('Base de datos conectada en index')
+    return await connect(process.env.MONGO_URL)
+}
 
-       
-        // const resultado = await productModel.aggregate([
-        //     {
-        //         $match: {
-        //             category: "Línea Clásica"
-        //         }
-        //     },
-        //     {
-        //        $group: {
-        //             _id: "$code",
-        //             total: {
-        //                 $sum: "$stock"
-        //             }
-        //        }  
-        //     },
-
-        //     {
-        //         $sort: {
-        //             total: 1
-        //         }
-        //     },
-
-        //     {
-        //         $group: {
-        //             _id: 1,
-        //             orders: {
-        //                 $push: "$$ROOT"
-        //             }
-        //         }
-        //     },
-
-        //     {
-        //         $project: {
-        //             _id: 1,
-        //             orders: "$orders"
-        //         }
-        //     },
-
-        //     {
-        //         $merge: {
-        //             into: "reports"
-        //         }
-        //     }
-
-        // ])
-
-        // console.log(resultado)
-    
-
-    } catch (error) {
-        console.error('Error al conectar a la base de datos o al buscar productos:', error);
-    }
-};
-
-const main = async () => {
-    await module.exports.connectDB();
-};
-
-main();

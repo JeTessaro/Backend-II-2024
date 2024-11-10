@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { authentication } = require('../../middleware/auth.midddleware');
-const UserDaoMongo = require('../../daos/MONGO/userDaosMongo');
+const UserDaoMongo = require('../../daos/MONGO/usersDao.mongo');
 const bcrypt = require('bcrypt');
 const { createHash, isValidPassword } = require('../../utils/bcrypt');
 const passport = require('passport');
@@ -109,12 +109,14 @@ router.post('/login', async (req, res) => {
     
 });
 
-// router.get('/current', passportCall ('jwt'), authorization ('admin', 'user_premium'), (req, res) => {
-//          res.send({dataUser: req.user, message:'datos sensibles'})
-// })
 
 router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
+    if (!req.user) {
+        return res.status(401).send({ status: 'error', error: 'Usuario no autenticado' });
+    }
+    console.log('User role:', req.user.role);
     const userRole = req.user.role; 
+    console.log('User role:', userRole);
 
     if (userRole === 'admin' || userRole === 'user_premium') {
         return res.send({ dataUser: req.user, message: 'datos sensibles' });
@@ -122,6 +124,7 @@ router.get('/current', passport.authenticate('jwt', { session: false }), (req, r
         return res.status(403).send({ status: 'error', error: 'Acceso denegado a datos sensibles' });
     }
 });
+
 // Change Password
 router.post('/changepass', async (req, res) => {
     const { email, newPassword } = req.body;

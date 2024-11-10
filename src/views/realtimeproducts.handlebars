@@ -1,27 +1,49 @@
-<h1>Real time products</h1>
+<h1 class="text-center my-4">Real time products</h1>
 
-<h2>Formulario de productos</h2>
+<h2 class="text-center mb-4">Formulario de productos</h2>
 
-<section class="container mt-5 w-100 d-flex flex-column align-items-center mb-56">
-    <form id="product-form" class="forma-control w-50">
-        <input type="text" name="title" class="forma-control mb-2" placeholder="Ingrese el nombre del producto">
-        <input type="text" name="code" class="forma-control mb-2" placeholder="Ingrese el código del producto">
-        <input type="text" name="thumbnail" class="forma-control mb-2" placeholder="Ingrese la imagen del producto">
-        <input type="text" name="price" class="forma-control mb-2" placeholder="Ingrese el precio del producto">
-        <input type="text" name="stock" class="forma-control mb-2" placeholder="Ingrese el stock del producto">
-        <input type="text" name="category" class="forma-control mb-2" placeholder="Ingrese la categoría del producto">
-        <button type="submit" class="btn btn-outline-dark">Enviar</button>
+<section class="container mt-5 mb-5">
+    <form id="product-form" class="bg-light p-3 rounded shadow">
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <input type="text" name="title" class="form-control form-control-sm" placeholder="Nombre" required>
+            </div>
+            <div class="col-md-6 mb-2">
+                <input type="text" name="code" class="form-control form-control-sm" placeholder="Código" required>
+            </div>
+            <div class="col-md-6 mb-2">
+                <input type="text" name="thumbnail" class="form-control form-control-sm" placeholder="Imagen" required>
+            </div>
+            <div class="col-md-6 mb-2">
+                <input type="number" name="price" class="form-control form-control-sm" placeholder="Precio" required>
+            </div>
+            <div class="col-md-6 mb-2">
+                <input type="number" name="stock" class="form-control form-control-sm" placeholder="Stock" required>
+            </div>
+            <div class="col-md-6 mb-2">
+                <input type="text" name="category" class="form-control form-control-sm" placeholder="Categoría"
+                    required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-outline-dark btn-sm w-100">Agregar</button>
     </form>
 </section>
 
-<div id="product-list" class="container d-flex flex-wrap justify-content-center gap-4"></div>
+<div id="product-list" class="container d-flex flex-wrap justify-content-center align-items-center mt-3"></div>
+
+<div id="pagination" class="container d-flex justify-content-center mt-3">
+    <button id="prev-page" class="btn btn-outline-dark btn-sm" disabled>Anterior</button>
+    <button id="next-page" class="btn btn-outline-dark btn-sm">Siguiente</button>
+</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
     const socket = io();
+    let currentPage = 1;
+    let totalPages = 1;
 
-    function requestProductList() {
-        socket.emit('requestProductList');
+    function requestProductList(page = 1) {
+        socket.emit('requestPage', page);
     }
 
     socket.on('productList', data => {
@@ -30,18 +52,18 @@
         let html = '';
         data.forEach(product => {
             html += `   
-                <div class='col-md-4 mb-4'>
-                    <div class='card'>
-                        <img src='${product.thumbnail}' class='card-img-top' alt='${product.title}'>
-                        <div class='card-body'>
-                            <h5 class='card-title'>Nombre: ${product.title}</h5>
-                            <p class='card-text'>Código: ${product.code}</p>
-                            <p class='card-text'>Precio: ${product.price}</p>
-                            <p class='card-text'>Stock: ${product.stock}</p>
-                            <p class='card-text'>Categoría: ${product.category}</p>
+                <div class='col-6 col-sm-4 d-flex justify-content-center mb-2'>
+                    <div class='card' style="width: 150px;">
+                        <img src='${product.thumbnail}' class='card-img-top' alt='${product.title}' style="height: 80px; object-fit: cover;">
+                        <div class='card-body text-center p-1'>
+                            <h6 class='card-title' style="font-size: 0.8rem;">${product.title}</h6>
+                            <p class='card-text' style="font-size: 0.7rem;">Código: ${product.code}</p>
+                            <p class='card-text' style="font-size: 0.7rem;">Precio: $${product.price}</p>
+                            <p class='card-text' style="font-size: 0.7rem;">Stock: ${product.stock}</p>
+                            <p class='card-text' style="font-size: 0.7rem;">Cat: ${product.category}</p>
                         </div>
-                        <div class='card-footer'> 
-                            <button class='btn btn-outline-dark w-100 delete-btn' data-id='${product._id}'>Eliminar</button>
+                        <div class='card-footer p-1'> 
+                            <button class='btn btn-danger btn-sm w-100 delete-btn' data-id='${product._id}'>Eliminar</button>
                         </div>
                     </div>
                 </div>
@@ -50,14 +72,33 @@
 
         productListDiv.innerHTML = html;
 
-        // Añadir event listeners a los botones de eliminar
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', () => {
                 const id = button.getAttribute('data-id');
-                console.log('Data', data);
                 eliminarProducto(id);
             });
         });
+    });
+
+    socket.on('paginationInfo', ({ totalDocs, totalPages: pages, currentPage: page }) => {
+        totalPages = pages;
+        currentPage = page;
+
+
+        document.getElementById('prev-page').disabled = currentPage === 1;
+        document.getElementById('next-page').disabled = currentPage === totalPages;
+    });
+
+    document.getElementById('prev-page').addEventListener('click', () => {
+        if (currentPage > 1) {
+            requestProductList(currentPage - 1);
+        }
+    });
+
+    document.getElementById('next-page').addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            requestProductList(currentPage + 1);
+        }
     });
 
     let form = document.querySelector('#product-form');
@@ -84,11 +125,9 @@
     });
 
     function eliminarProducto(_id) {
-        console.log(_id)
         socket.emit('deleteProduct', _id);
-        console.log(_id)
         requestProductList();
     }
 
-    requestProductList();
+    requestProductList(); 
 </script>

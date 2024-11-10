@@ -1,7 +1,8 @@
 const authentication = (req, res, next) => {
-    if (req.session.user.email !== 'et@gmail.com' || !req.session.user.isAdmin) {
-        return res.status(401).send({ status: 'error', message: 'No tienes permisos para acceder' });
+    if (!req.session.user || req.session.user.role !== 'admin') {
+        return res.status(403).send({ status: 'error', message: 'No tienes permisos para acceder' });
     }
+
     next();
 }
 

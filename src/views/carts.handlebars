@@ -30,6 +30,12 @@
             <a href="/carts?pageNum={{nextPage}}" class="btn btn-primary ms-2">Siguiente</a>
             {{/if}}
         </div>
+
+        
+        <div class="mt-4">
+            <label for="userEmail">Correo electrónico:</label>
+            <input type="email" id="userEmail" class="form-control" placeholder="Ingresa tu correo" required>
+        </div>
     </div>
 </div>
 
@@ -37,30 +43,29 @@
     let cartItems = [];
     function addToCart(code, price) {
         const quantity = parseInt(document.getElementById(`quantity-${code}`).value, 10);
-
+        const userEmail = document.getElementById('userEmail').value; // Obtener el correo electrónico
 
         if (isNaN(quantity) || quantity <= 0) {
             alert('Por favor, ingresa una cantidad válida.');
             return;
         }
 
-
+        if (!userEmail) {
+            alert('Por favor, ingresa tu correo electrónico.');
+            return;
+        }
 
         const existingProductIndex = cartItems.findIndex(item => item.code === code);
 
-        // Si el producto está en el carrito, sumar la cantidad
-        // y actualizar el carrito en la base de datos
         if (existingProductIndex !== -1) {
-
             cartItems[existingProductIndex].cant += quantity;
-
 
             fetch(`http://localhost:8080/api/carts/put/${code}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ cant: quantity }),
+                body: JSON.stringify({ cant: quantity, userEmail }), 
             })
                 .then(response => {
                     if (!response.ok) {
@@ -77,14 +82,13 @@
                     alert('Error al actualizar la cantidad en el carrito: ' + error.message);
                 });
         } else {
-            // Si el producto no está en el carrito, agregarlo
             const product = {
                 code: code,
                 price: price,
-                cant: quantity
+                cant: quantity,
+                userEmail: userEmail 
             };
             cartItems.push(product);
-
 
             fetch('http://localhost:8080/api/carts/post', {
                 method: 'POST',
@@ -102,7 +106,7 @@
                 .then(data => {
                     console.log('Productos agregados al carrito:', data);
                     alert('Productos agregados al carrito.');
-                    cartItems = []; 
+                    cartItems = [];
                 })
                 .catch((error) => {
                     console.error('Error al agregar los productos:', error);
@@ -110,8 +114,4 @@
                 });
         }
     }
-
-
-
-
 </script>

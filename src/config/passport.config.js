@@ -3,7 +3,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const jwt = require('passport-jwt')
 const passportLocal = require('passport-local');
 const GithubStrategy = require('passport-github2')
-const UserDaoMongo  = require('../daos/MONGO/userDaosMongo');
+const UserDaoMongo = require('../daos/MONGO/usersDao.mongo');
 const { createHash, isValidPassword } = require('../utils/bcrypt');
 const { PRIVATE_KEY } = require('../utils/jsonwebtoken');
 
@@ -20,7 +20,7 @@ const initializePassport = () => {
     }, async (accessToken, refreshToken, profile, done) => {
         try {
             console.log(profile)
-            let user = await userService.getUser({email: profile._json.email}) 
+            let user = await userService.getUser({ email: profile._json.email })
             if (!user) {
                 // registramos
                 let newUser = {
@@ -35,7 +35,7 @@ const initializePassport = () => {
             done(null, user)
 
         } catch (error) {
-           return done(error)
+            return done(error)
         }
     }))
 
@@ -44,35 +44,35 @@ const initializePassport = () => {
         usernameField: 'email'
     }, async (req, username, password, done) => {
         const { first_name, last_name, role } = req.body;
-    
+
         console.log('Datos recibidos:', req.body);
 
-    
+
         try {
             let userFound = await userService.getUser({ email: username });
             if (userFound) return done(null, false);
-    
+
             // Verifica si el rol es válido
             if (!['user', 'user_premium', 'admin'].includes(role)) {
                 return done(null, false, { message: 'Rol no válido' });
             }
-    
+
             let newUser = {
                 first_name,
                 last_name,
                 email: username,
-                role, 
+                role,
                 password: createHash(password)
             };
             let result = await userService.createUser(newUser);
             return done(null, result);
-    
+
         } catch (error) {
             return done('Error al crear un usuario ' + error);
         }
     }));
 
-    
+
     passport.use('login', new LocalStrategy({
         usernameField: 'email'
     }, async (username, password, done) => {
@@ -84,19 +84,19 @@ const initializePassport = () => {
         } catch (error) {
             return done(error);
         }
-    }));    
+    }));
 
-    passport.serializeUser((user, done)=>{
+    passport.serializeUser((user, done) => {
         done(null, user.id)
     })
 
-    passport.deserializeUser(async (id, done)=>{
-        let user = await userService.getUser({_id: id})
+    passport.deserializeUser(async (id, done) => {
+        let user = await userService.getUser({ _id: id })
         done(null, user)
     })
     const cookieExtractor = req => {
         let token = null;
-        if (req && req.cookies) { 
+        if (req && req.cookies) {
             token = req.cookies['token'];
         }
         return token;
@@ -112,7 +112,7 @@ const initializePassport = () => {
             return done(error);
         }
     }));
- 
+
 }
 
 module.exports = {

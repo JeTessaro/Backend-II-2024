@@ -1,29 +1,30 @@
-const { Router } = require('express')
-const { ProductManagerMongo } = require("../daos/MONGO/productsManager.mongo");
+const { Router } = require('express');
+const { ProductDaoMongo } = require('../daos/MONGO/productsDao.mongo');
 
-const router = Router()
+const router = Router();
 
 // Login - Register
-
 router.get('/register', (req, res) => {
-    res.render('register')
-})
+    res.render('register');
+});
+
 router.get('/login', (req, res) => {
-    res.render('login')
-})
+    res.render('login');
+});
+
 router.get('/newpass', (req, res) => {
-    res.render('changepass')
-})
+    res.render('changepass');
+});
 
 // Ruta para mostrar la lista de productos
 router.get('/', (req, res) => {
-    res.render('index', {})
-})
+    res.render('index', {});
+});
 
 // Ruta para mostrar los productos paginados
 router.get('/productos', async (req, res) => {
-    const productService = new ProductManagerMongo()
-    const { limit, pageNum } = req.query
+    const productService = new ProductDaoMongo();
+    const { limit = 10, pageNum = 1 } = req.query; // Valores por defecto
     try {
         const {
             docs,
@@ -32,7 +33,7 @@ router.get('/productos', async (req, res) => {
             prevPage,
             nextPage,
             page
-        } = await productService.getProductos({ limit, page: pageNum })
+        } = await productService.get({ limit, page: pageNum });
 
         res.render('products', {
             products: docs,
@@ -41,51 +42,28 @@ router.get('/productos', async (req, res) => {
             prevPage,
             nextPage,
             page
-        })
+        });
     } catch (error) {
-        console.log(error)
+        console.error(error);
+        res.status(500).send("Error al obtener los productos.");
     }
-})
+});
 
 // Ruta para mostrar un producto
-router.get('/home', (req, res) => {
-    const productService = new ProductManagerMongo()
-    const products = productService.getProductos()
-    res.render('home', { products })
-})
-
-// Ruta para mostrar los productos en tiempo real (con websockets)
-router.get('/realtimeproducts', async (req, res) => {
-
-    res.render('realtimeproducts', {})
-
-})
-
-// Ruta para mostrar los carritos
-router.get('/carts', async (req, res) => {
-    const productService = new ProductManagerMongo()
-    const { limit, pageNum } = req.query
+router.get('/home', async (req, res) => {
+    const productService = new ProductDaoMongo();
     try {
-        const {
-            docs,
-            hasPrevPage,
-            hasNextPage,
-            prevPage,
-            nextPage,
-            page
-        } = await productService.getProductos({ limit, page: pageNum })
-
-        res.render('carts', {
-            products: docs,
-            hasPrevPage,
-            hasNextPage,
-            prevPage,
-            nextPage,
-            page
-        })
+        const products = await productService.get(); // Asegúrate de que esto sea asíncrono
+        res.render('home', { products });
     } catch (error) {
-        console.log(error)
+        console.error(error);
+        res.status(500).send("Error al obtener los productos para la página de inicio.");
     }
-})
+});
 
-module.exports = router
+// Ruta para mostrar productos en tiempo real (con websockets)
+router.get('/realtimeproducts', (req, res) => {
+    res.render('realtimeproducts', {});
+});
+
+module.exports = router;

@@ -1,113 +1,88 @@
 #### Productos
 
-GET http://192.168.1.38:8080/api/products
+GET http://localhost:8080/api/products
 ###
-GET http://localhost:8080/api/products/66d7a9e9deebbaa8902daa6a
+GET http://localhost:8080/api/products/672eb67513793eacac826bf3
+
 ###
 POST  http://localhost:8080/api/products
 Content-Type: application/json
 
 [
     {
-        "title": "Producto 1",
-        "code": "001",
+        "title": "Producto 11",
+        "code": "011",
         "thumbnail": "../../public/uploads/1725409053498-img-07.JPG",
         "price": 1820000,
-        "stock": 5,
-        "category": "Línea Clásica"
-    },
-    {
-        "title": "Producto 2",
-        "code": "002",
-        "thumbnail": "../../public/uploads/1725409053498-img-08.JPG",
-        "price": 1500000,
-        "stock": 3,
-        "category": "Línea Clásica"
-    },
-    {
-        "title": "Producto 3",
-        "code": "003",
-        "thumbnail": "../../public/uploads/1725409053498-img-07.JPG",
-        "price": 2000000,
         "stock": 8,
         "category": "Línea Clásica"
     },
     {
-        "title": "Producto 4",
-        "code": "004",
+        "title": "Producto 12",
+        "code": "012",
         "thumbnail": "../../public/uploads/1725409053498-img-08.JPG",
-        "price": 1820000,
-        "stock": 2,
-        "category": "Línea Moderna"
-    },
-    {
-        "title": "Producto 5",
-        "code": "005",
-        "thumbnail": "../../public/uploads/1725409053498-img-07.JPG",
-        "price": 1320000,
-        "stock": 7,
-        "category": "Línea Moderna"
-    },
-    {
-        "title": "Producto 6",
-        "code": "006",
-        "thumbnail": "../../public/uploads/1725409053498-img-08.JPG",
-        "price": 1750000,
-        "stock": 4,
-        "category": "Línea Moderna"
+        "price": 1500000,
+        "stock": 8,
+        "category": "Línea Clásica"
     }
+   
 ]
 
 
 
 ###
-PUT http://localhost:8080/products/123456
+PUT http://localhost:8080/api/products/672eb67513793eacac826bf3
+Content-Type: application/json
+
+    {        
+        "price": 1111111        
+    }
+
 ###
-DELETE  http://localhost:8080/api/products/123456
+DELETE  http://localhost:8080/api/products/672eb67513793eacac826bf3
+
 
 #### Carts
 
 GET http://localhost:8080/api/carts/
 ###
-GET http://localhost:8080/api/carts/66efb238917d04f3347866c2
+GET http://localhost:8080/api/carts/6728064e6327a39e09db2db9
+
 ###
 POST  http://localhost:8080/api/carts/post
 content-Type: application/json
 
 [
     {
-    "code": "002",
-    "price": 1500,
-    "cant": 8
+    "code": "050",
+    "price": 800,
+    "cant": 2,
+    "userEmail": "etessaro@live.com.ar"
     }    
 ]
 
 
 ###
-PUT http://localhost:8080/api/carts/66efb20e917d04f3347866be
-Content-Type: application/json
+PUT http://localhost:8080/api/carts/672eb76013793eacac826bfc
+content-Type: application/json
 Authorization: Bearer token
 
 {
-  "code": "0500",
-  "price": 252600,
-  "cant": 7
+    "code": "005",
+    "price": 100000,
+    "cant": 900
 }
 
-
-
-
 ###
-DELETE  http://localhost:8080/api/carts/66ef6ef4e09dc94d3e2517a2
-
+DELETE  http://localhost:8080/api/carts/672eb76013793eacac826bfc
 ###
 
 POST http://localhost:8080/api/sessions/register
 Content-Type: application/json
 
 {
-    "first_name": "Tessaro E",
-    "email": "jose@gmail.com",
+    "first_name": "Tessaro Jose Emilio",
+    "email": "joseEmilioTessaro@gmail.com",
     "role": "admin",
     "password": "123456"
 }
@@ -118,8 +93,24 @@ POST http://localhost:8080/api/sessions/login
 Content-Type: application/json
 
 {
-    "email": "jt@gmail.com",
+    "email": "joseEmilioTessaro@gmail.com",
     "password": "123456"
 }
 
 
+###
+
+GET http://localhost:8080/api/sessions/current
+Authorization: Bearer <tu_token_jwt>
+###
+
+
+#### Ticket
+
+POST http://localhost:8080/api/carts/purchase
+content-Type: application/json
+Authorization: Bearer token
+
+{
+    "email": "emilio_tessaro@live.com.ar"
+}
