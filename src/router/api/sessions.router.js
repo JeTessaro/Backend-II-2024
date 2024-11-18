@@ -20,29 +20,10 @@ router.get('/githubcallback', passport.authenticate('github', { failureRedirect:
     res.redirect('/')
 })
 
-
-// router.post('/register', passport.authenticate('register', {failureRedirect: '/failregister'}), async (req, res) => {
-//     res.send({status: 'success', message: 'usuario registrado'})
-// })
 router.get('/failregister', async (req, res) => {
     console.log('fallo la estragia')
     res.send({status: 'error', error: 'fallo estrategia'})
 })
-
-// router.post('/login', passport.authenticate('local', { failureRedirect: '/faillogin'}), async (req, res) => {
-//     if(!req.user) return res.status(401).send({status: 'error', error: 'credenciales inválidas'})
-//         req.session.user = {
-//             email: req.user.email
-//     }
-//     res.send({status:'success', message: 'usuario logueado'})
-// })
-
-router.post('/login', passport.authenticate('login', {
-    failureRedirect: '/login', // Redirige si falla
-}), (req, res) => {
-    res.send({ status: 'success', message: 'Logged in successfully' });
-});
-
 
 router.post('/register', async (req, res) => {
     try {
@@ -90,11 +71,6 @@ router.post('/login', async (req, res) => {
     if (!isValidPassword(password, userFound.password)) {
         return res.status(401).send({ status: 'error', error: 'Credenciales incorrectas' });
     }
-
-    // req.session.user = {
-    //     email,
-    //     isAdmin: userFound.role === 'admin' 
-    // };
 
     const token = generateToken({id: userFound._id, role: userFound.role})
    

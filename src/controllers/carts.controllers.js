@@ -104,7 +104,7 @@ class CartsController {
       console.log("Email del usuario:", email);
 
       const carts = await this.cartsService.getCartsByEmail(email);
-      console.log("Carritos encontrados:", carts);
+      console.log("Carritos encontrados en MONGO:", carts);
 
       if (!carts || carts.length === 0) {
         return res.status(404).send({ status: "Error", message: "No hay carritos asociados a este email." });
@@ -119,7 +119,7 @@ class CartsController {
         console.log("Procesando carrito:", cart);
 
         const product = await productService.getByCode(cart.code);
-        console.log("Producto encontrado:", product);
+        console.log("Producto encontrado con getByCode:", product);
 
         if (product && product.stock >= cart.cant) {
 
@@ -136,7 +136,7 @@ class CartsController {
         } else {
           console.log("Producto no disponible o stock insuficiente:", cart);
         }
-      }
+       }
 
 
       if (allAvailableProducts.length === 0) {
@@ -151,7 +151,7 @@ class CartsController {
         code: ticketCode,
         amount_number: totalAmount,
         userEmail: email,
-        products: allAvailableProducts // Guarda los productos disponibles en el ticket
+        products: allAvailableProducts 
       });
 
       console.log("Ticket a ser guardado:", ticket);
@@ -182,10 +182,10 @@ class CartsController {
       console.error(error);
       res.status(500).send({ status: "Error", message: "Error al crear el ticket" });
     }
-  };
-};
+   };
+ };
 
-
+    
 
 module.exports = {
   CartsController

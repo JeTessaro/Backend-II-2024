@@ -3,6 +3,8 @@
 
     <div class="mt-4">
         <h2>Paginación</h2>
+
+        {{#if products.length}}
         <div class="list-group">
             {{#each products}}
             <div class="list-group-item d-flex justify-content-between align-items-center">
@@ -20,6 +22,9 @@
             </div>
             {{/each}}
         </div>
+        {{else}}
+        <div class="alert alert-warning">No hay productos disponibles.</div>
+        {{/if}}
 
         <div class="d-flex justify-content-center mt-4">
             {{#if hasPrevPage}}
@@ -31,19 +36,31 @@
             {{/if}}
         </div>
 
-        
         <div class="mt-4">
             <label for="userEmail">Correo electrónico:</label>
             <input type="email" id="userEmail" class="form-control" placeholder="Ingresa tu correo" required>
+        </div>
+
+        <div class="mt-4">
+            <button class="btn btn-danger" onclick="finalizarCompra()">Finalizar Compra</button>
         </div>
     </div>
 </div>
 
 <script>
     let cartItems = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const storedEmail = localStorage.getItem('userEmail');
+        if (storedEmail) {
+            document.getElementById('userEmail').value = storedEmail;
+        }
+    });
+
+
     function addToCart(code, price) {
         const quantity = parseInt(document.getElementById(`quantity-${code}`).value, 10);
-        const userEmail = document.getElementById('userEmail').value; // Obtener el correo electrónico
+        const userEmail = document.getElementById('userEmail').value;
 
         if (isNaN(quantity) || quantity <= 0) {
             alert('Por favor, ingresa una cantidad válida.');
@@ -55,63 +72,123 @@
             return;
         }
 
-        const existingProductIndex = cartItems.findIndex(item => item.code === code);
+        // Guardar el email en localStorage
+        localStorage.setItem('userEmail', userEmail);
 
-        if (existingProductIndex !== -1) {
-            cartItems[existingProductIndex].cant += quantity;
-
-            fetch(`http://localhost:8080/api/carts/put/${code}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ cant: quantity, userEmail }), 
+        // Verificar si el correo existe en la base de datos
+        fetch(`http://localhost:8080/api/users/check-email`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: userEmail }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error en la respuesta de la red: ${response.statusText}`);
+                }
+                return response.json();
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Error en la respuesta de la red: ${response.statusText}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Cantidad actualizada en el carrito:', data);
-                    alert('Cantidad actualizada en el carrito.');
-                })
-                .catch((error) => {
-                    console.error('Error al actualizar la cantidad:', error);
-                    alert('Error al actualizar la cantidad en el carrito: ' + error.message);
-                });
-        } else {
-            const product = {
-                code: code,
-                price: price,
-                cant: quantity,
-                userEmail: userEmail 
-            };
-            cartItems.push(product);
+            .then(data => {
+                if (!data.exists) {
+                    throw new Error('El correo electrónico no existe en la base de datos.');
+                }
 
-            fetch('http://localhost:8080/api/carts/post', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(cartItems),
+                const existingProductIndex = cartItems.findIndex(item => item.code === code);
+
+                const product = {
+                    code: code,
+                    price: price,
+                    cant: quantity,
+                    userEmail: userEmail
+                };
+
+                if (existingProductIndex !== -1) {
+                    cartItems[existingProductIndex].cant += quantity;
+
+                    fetch(`http://localhost:8080/api/carts/put/${code}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ cant: cartItems[existingProductIndex].cant, userEmail }),
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Error en la respuesta de la red: ${response.statusText}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Cantidad actualizada en el carrito:', data);
+                            alert('Cantidad actualizada en el carrito.');
+                        })
+                        .catch((error) => {
+                            console.error('Error al actualizar la cantidad:', error);
+                            alert('Error al actualizar la cantidad en el carrito: ' + error.message);
+                        });
+                } else {
+                    cartItems.push(product);
+
+                    fetch('http://localhost:8080/api/carts/post', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify([product]),
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Error en la respuesta de la red: ${response.statusText}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Productos agregados al carrito:', data);
+                            alert('Productos agregados al carrito.');
+                        })
+                        .catch((error) => {
+                            console.error('Error al agregar los productos:', error);
+                            alert('Error al agregar los productos al carrito: ' + error.message);
+                        });
+                }
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Error en la respuesta de la red: ${response.statusText}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Productos agregados al carrito:', data);
-                    alert('Productos agregados al carrito.');
-                    cartItems = [];
-                })
-                .catch((error) => {
-                    console.error('Error al agregar los productos:', error);
-                    alert('Error al agregar los productos al carrito: ' + error.message);
-                });
+            .catch(error => {
+                console.error('Error al verificar el correo electrónico:', error);
+                alert('Error al verificar el correo electrónico: ' + error.message);
+            });
+    }
+
+    function finalizarCompra() {
+        const userEmail = document.getElementById('userEmail').value;
+        const token = 'tu_token_aquí';
+        if (!userEmail) {
+            alert('Por favor, ingresa tu correo electrónico para finalizar la compra.');
+            return;
         }
+
+        fetch('http://localhost:8080/api/carts/purchase', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ email: userEmail }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error en la respuesta de la red: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Compra finalizada:', data);
+                alert('Compra finalizada con éxito.');
+                cartItems = [];
+            })
+            .catch((error) => {
+                console.error('Error al finalizar la compra:', error);
+                alert('Error al finalizar la compra: ' + error.message);
+            });
     }
 </script>

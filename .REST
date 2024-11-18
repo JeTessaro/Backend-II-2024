@@ -54,10 +54,10 @@ content-Type: application/json
 
 [
     {
-    "code": "050",
-    "price": 800,
+    "code": "120",
+    "price": 25500,
     "cant": 2,
-    "userEmail": "etessaro@live.com.ar"
+    "userEmail": "emilio_tessaro@live.com.ar"
     }    
 ]
 
@@ -93,7 +93,7 @@ POST http://localhost:8080/api/sessions/login
 Content-Type: application/json
 
 {
-    "email": "joseEmilioTessaro@gmail.com",
+    "email": "jt@gmail.com",
     "password": "123456"
 }
 
@@ -101,7 +101,7 @@ Content-Type: application/json
 ###
 
 GET http://localhost:8080/api/sessions/current
-Authorization: Bearer <tu_token_jwt>
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MGIxMTgwM2EwOWY3NTE3ODcxNDA5NSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzMxODg3MTU1LCJleHAiOjE3MzE5NzM1NTV9.W1kEd1yu76Y80RH6gTgL9nEC-c_V2Aa9j2nmxahlEAE
 ###
 
 

@@ -1,5 +1,9 @@
 const { Router } = require('express');
 const { ProductDaoMongo } = require('../daos/MONGO/productsDao.mongo');
+const { productModel } = require('../daos/MONGO/models/products.model');
+const isAuthenticated = require('../middleware/autenticarMaill');
+
+
 
 const router = Router();
 
@@ -24,7 +28,7 @@ router.get('/', (req, res) => {
 // Ruta para mostrar los productos paginados
 router.get('/productos', async (req, res) => {
     const productService = new ProductDaoMongo();
-    const { limit = 10, pageNum = 1 } = req.query; // Valores por defecto
+    const { limit = 5, pageNum = 1 } = req.query;
     try {
         const {
             docs,
@@ -53,7 +57,7 @@ router.get('/productos', async (req, res) => {
 router.get('/home', async (req, res) => {
     const productService = new ProductDaoMongo();
     try {
-        const products = await productService.get(); // Asegúrate de que esto sea asíncrono
+        const products = await productService.get();
         res.render('home', { products });
     } catch (error) {
         console.error(error);
@@ -65,5 +69,39 @@ router.get('/home', async (req, res) => {
 router.get('/realtimeproducts', (req, res) => {
     res.render('realtimeproducts', {});
 });
+
+// Ruta para mostrar los carritos
+router.get('/carts', async (req, res) => {
+    const productService = new ProductDaoMongo();
+    const { limit = 2, pageNum = 1 } = req.query;
+
+    try {
+        const {
+            docs,
+            totalDocs,
+            totalPages,
+            page
+        } = await productService.get({ limit, page: pageNum });
+
+        res.render('carts', {
+            products: docs,
+            hasPrevPage: page > 1,
+            hasNextPage: page < totalPages,
+            prevPage: page > 1 ? page - 1 : null,
+            nextPage: page < totalPages ? page + 1 : null,
+            page,
+            totalDocs,
+            totalPages
+        });
+    } catch (error) {
+        console.error('Error al obtener productos:', error);
+        res.status(500).send('Error al obtener productos');
+    }
+
+
+});
+
+
+
 
 module.exports = router;

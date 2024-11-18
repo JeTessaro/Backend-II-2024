@@ -1,5 +1,7 @@
+const { userModel } = require('../daos/MONGO/models/users.model.js');
 const { userService } = require('../services');
 const { createHash, isValidPassword, generateToken } = require('../utils/bcrypt.js');
+
 class UsersController {
     constructor() {
         this.userService = userService;
@@ -74,6 +76,24 @@ class UsersController {
         const result = await this.userService.deleteUser({ _id: uid });
         res.send({ status: 'success', message: 'Usuario borrado' });
     };
+
+    
+    checkEmail = async (req, res) => {
+        try {
+            const { email } = req.body;
+            const user = await userModel.findOne({ email });
+
+         if (user) {
+             return res.status(200).json({ exists: true });
+            } else {
+            return res.status(404).json({ exists: false });
+            }
+        } catch (error) {
+            console.error("Error al verificar el correo electrónico:", error);
+            return res.status(500).json({ exists: false, error: "Internal Server Error" });
+        }
+};
+
 }
 
 module.exports = {

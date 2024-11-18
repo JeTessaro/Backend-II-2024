@@ -11,7 +11,8 @@ const {
     createUser,
     loginUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    checkEmail
 } = new UsersController(usersService); 
 // Ruta para obtener el usuario actual
 router.get('/', passportCall('jwt'), getUsers );
@@ -24,12 +25,12 @@ router.post('/login', loginUser);
 
 // Ruta para obtener datos sensibles del usuario actual
 router.get('/current', passportCall('jwt'), (req, res) => {
-    res.send('datos sensibles'); // Considera enviar datos del usuario aquí.
+    res.send('datos sensibles'); 
 });
 
 // Ruta para cerrar sesión
 router.post('/logout', (req, res) => {
-    res.send('logout'); // Considera implementar la lógica de cierre de sesión.
+    res.send('logout'); 
 });
 
 // Ruta para actualizar un usuario específico
@@ -37,6 +38,10 @@ router.put('/:uid', updateUser);
 
 // Ruta para eliminar un usuario específico
 router.delete('/:uid', deleteUser);
+
+// Ruta para verificar si el email ya está en uso
+
+router.post('/check-email', checkEmail);
 
 module.exports = router;
 

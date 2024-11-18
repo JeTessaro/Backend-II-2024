@@ -9,7 +9,7 @@ const { ProductDaoMongo } = require('./daos/MONGO/productsDao.mongo.js')
 const mongoose = require('mongoose');
 const cookie = require('cookie-parser')
 const viewsRouter = require('./router/views.router.js')
-const pruebaRouter = require('./router/pruebas.router.js')
+//const pruebaRouter = require('./router/pruebas.router.js')
 
 // clase cookie session 
 const cookieParser = require('cookie-parser')
@@ -81,7 +81,7 @@ connectDB()
 
 app.use(appRouter)
 
-app.use('/pruebas', pruebaRouter)
+//app.use('/pruebas', pruebaRouter)
 app.use(session({
     secret: 'secretcoder',
     resave: true,
